@@ -51,10 +51,12 @@ void __attribute__((constructor)) mod_preinit() {
     //pseudo_printf(4, "Hello", "World", "From", "M1");
     putchar('0' + add3(2, 2, 5));
     printf("\n");
-    printf("empty_variadic(0)");
+    printf("empty_variadic(0)\n");
     empty_variadic(0);
-    printf("pseudo_printf(0)");
+    printf("pseudo_printf(0)\n");
     pseudo_printf(0);
-    printf("pseudo_printf(1, \"Hello Wrld\")");
-    pseudo_printf(1, "Hello Wrld");
+    printf("pseudo_printf(1, \"Hello World\")\n");
+    pseudo_printf(1, "Hello World");
+    printf("pseudo_printf(2, \"Hello\", \"World\")\n");
+    pseudo_printf(2, "Hello", "World");
 }
