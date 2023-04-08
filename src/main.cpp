@@ -96,10 +96,22 @@ template <class T, class...Y> struct MDispatchBase {
     static T CallMethod(JNIEnv * env, Y...p, jmethodID id, va_list param);
 };
 
+JNINativeInterface org;
+
+template<class S, size_t i, class T, class...Ts> struct TypeIndex {
+    const constexpr int Index = std::is_same_v<S, T> ? i : TypeIndex<S, i + 1, Ts...>::Index;
+}
+
 template <class T> struct MDispatchBase2 {
-    static T CallMethod(JNIEnv * env, jobject obj, jmethodID id, jvalue * param) __attribute__((weak));
-    static T CallMethod(JNIEnv * env, jobject obj, jclass cl, jmethodID id, jvalue * param) __attribute__((weak));
-    static T CallMethod(JNIEnv * env, jclass cl, jmethodID id, jvalue * param) __attribute__((weak));
+    static T CallMethod(JNIEnv * env, jobject obj, jmethodID id, jvalue * param) {
+        return (T(*)(JNIEnv * env, jobject obj, jmethodID id, jvalue * param))(((void**)&org)[offsetof(JNINativeInterface, CallStaticObjectMethod) + 3 * TypeIndex<T, 0, jobject, jboolean, jbyte, jchar, jshort, jint, jlong, jfloat, jdouble, void>::Index])(env, obj, id, param);
+    }
+    static T CallMethod(JNIEnv * env, jobject obj, jclass cl, jmethodID id, jvalue * param) {
+        return (T(*)(JNIEnv * env, jobject obj, jclass cl, jmethodID id, jvalue * param))(((void**)&org)[offsetof(JNINativeInterface, CallNonvirtualObjectMethod) + 3 * TypeIndex<T, 0, jobject, jboolean, jbyte, jchar, jshort, jint, jlong, jfloat, jdouble, void>::Index])(env, obj, cl, id, param);
+    }
+    static T CallMethod(JNIEnv * env, jclass cl, jmethodID id, jvalue * param) {
+        return (T(*)(JNIEnv * env, jclass cl, jmethodID id, jvalue * param))(((void**)&org)[offsetof(JNINativeInterface, CallStaticObjectMethod) + 3 * TypeIndex<T, 0, jobject, jboolean, jbyte, jchar, jshort, jint, jlong, jfloat, jdouble, void>::Index])(env, cl, id, param);
+    }
 };
 
 template <class T, class...Y> struct MDispatch : MDispatchBase<T, Y...>, MDispatchBase2<T> {
@@ -214,6 +226,6 @@ JNINativeInterface GetNativeInterfaceTemplate() {
 }
 
 void PatchJNINativeInterface(JNINativeInterface& interface) {
-    
+    org = interface;
 }
 
