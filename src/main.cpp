@@ -128,7 +128,7 @@ template<size_t Y> struct NullTemplate {
 };
 
 template<class T, class... Y> T MDispatchBase<T, Y...>::CallMethod(JNIEnv *env, Y ...p, jmethodID id, va_list param) {
-    return MDispatch<T, Y...>::CallMethod(env, p..., id, id ? JValuesfromValist(param, ((Method *)id)->signature.data()).data() : nullptr);
+    return MDispatch<T, Y...>::CallMethod(env, p..., id, id ? JValuesfromValist(param, GetJMethodIDSignature(id)).data() : nullptr);
 };
 
 template<class T, class... Y> T MDispatch<T, Y...>::CallMethod(JNIEnv *env, Y ...p, jmethodID id, ...) {
