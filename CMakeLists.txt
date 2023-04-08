@@ -4,7 +4,5 @@ project(log LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_subdirectory(logger)
-
-add_library(log SHARED src/main.cpp)
-target_link_libraries(log PUBLIC logger)
+add_library(jnivmsupport SHARED src/main.cpp)
+target_include_directories(jnivmsupport libjnivm/include)
