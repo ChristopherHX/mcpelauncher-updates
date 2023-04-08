@@ -3,6 +3,9 @@
 This is a mod for mcpelauncher-manifest to allow newer Minecraft Versions to run.
 
 ## Building
+
+`git clone https://github.com/minecraft-linux/logger`
+
 `PATH_TO_NDK="/path/to/ndk"`
 - x86
 

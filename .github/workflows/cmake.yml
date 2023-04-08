@@ -27,6 +27,9 @@ jobs:
     steps:
     - run: sudo apt update && sudo apt install llvm g++ ninja-build
     - uses: actions/checkout@v3
+
+    - run: git clone https://github.com/minecraft-linux/logger
+
     - uses: nttld/setup-ndk@v1
       id: setup-ndk
       with:
