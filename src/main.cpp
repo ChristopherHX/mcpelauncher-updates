@@ -178,8 +178,8 @@ template<class ...jnitypes> struct InterfaceFactory {
 						MDispatch<std::tuple_element_t<I, composeType>, jobject>::CallMethod ...,
 						MDispatch<std::tuple_element_t<I, composeType>, jobject, jclass>::CallMethod ...,
 						NULL,
-						NullTemplate<IM1>::value...,
-						NullTemplate<IM1>::value...,
+						(void*)(NullTemplate<IM1>::value)...,
+						(void*)(NullTemplate<IM1>::value)...,
 						NULL,
 						MDispatch<std::tuple_element_t<I, composeType>, jclass>::CallMethod ...,
 					};
