@@ -108,13 +108,13 @@ template<class S, size_t i, class T, class...Ts> struct TypeIndex<S, i, T, Ts...
 
 template <class T> struct MDispatchBase2 {
     static T CallMethod(JNIEnv * env, jobject obj, jmethodID id, jvalue * param) {
-        return (T(*)(JNIEnv * env, jobject obj, jmethodID id, jvalue * param))(((void**)&org)[offsetof(JNINativeInterface, CallStaticObjectMethod) + 3 * TypeIndex<T, 0, jobject, jboolean, jbyte, jchar, jshort, jint, jlong, jfloat, jdouble, void>::Index])(env, obj, id, param);
+        return ((T(*)(JNIEnv * env, jobject obj, jmethodID id, jvalue * param))(((void**)&org)[offsetof(JNINativeInterface, CallStaticObjectMethod) + 3 * TypeIndex<T, 0, jobject, jboolean, jbyte, jchar, jshort, jint, jlong, jfloat, jdouble, void>::Index]))(env, obj, id, param);
     }
     static T CallMethod(JNIEnv * env, jobject obj, jclass cl, jmethodID id, jvalue * param) {
-        return (T(*)(JNIEnv * env, jobject obj, jclass cl, jmethodID id, jvalue * param))(((void**)&org)[offsetof(JNINativeInterface, CallNonvirtualObjectMethod) + 3 * TypeIndex<T, 0, jobject, jboolean, jbyte, jchar, jshort, jint, jlong, jfloat, jdouble, void>::Index])(env, obj, cl, id, param);
+        return ((T(*)(JNIEnv * env, jobject obj, jclass cl, jmethodID id, jvalue * param))(((void**)&org)[offsetof(JNINativeInterface, CallNonvirtualObjectMethod) + 3 * TypeIndex<T, 0, jobject, jboolean, jbyte, jchar, jshort, jint, jlong, jfloat, jdouble, void>::Index]))(env, obj, cl, id, param);
     }
     static T CallMethod(JNIEnv * env, jclass cl, jmethodID id, jvalue * param) {
-        return (T(*)(JNIEnv * env, jclass cl, jmethodID id, jvalue * param))(((void**)&org)[offsetof(JNINativeInterface, CallStaticObjectMethod) + 3 * TypeIndex<T, 0, jobject, jboolean, jbyte, jchar, jshort, jint, jlong, jfloat, jdouble, void>::Index])(env, cl, id, param);
+        return ((T(*)(JNIEnv * env, jclass cl, jmethodID id, jvalue * param))(((void**)&org)[offsetof(JNINativeInterface, CallStaticObjectMethod) + 3 * TypeIndex<T, 0, jobject, jboolean, jbyte, jchar, jshort, jint, jlong, jfloat, jdouble, void>::Index]))(env, cl, id, param);
     }
 };
 
