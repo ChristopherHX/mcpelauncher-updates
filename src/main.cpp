@@ -98,7 +98,11 @@ template <class T, class...Y> struct MDispatchBase {
 
 JNINativeInterface org;
 
-template<class S, size_t i, class T, class...Ts> struct TypeIndex {
+template<class S, size_t i, class...Ts> struct TypeIndex {
+    static const constexpr int Index = -1;
+};
+
+template<class S, size_t i, class T, class...Ts> struct TypeIndex<S, i, T, Ts> {
     static const constexpr int Index = std::is_same_v<S, T> ? i : TypeIndex<S, i + 1, Ts...>::Index;
 };
 
