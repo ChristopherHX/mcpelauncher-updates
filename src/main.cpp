@@ -231,5 +231,11 @@ JNINativeInterface GetNativeInterfaceTemplate() {
 
 void PatchJNINativeInterface(JNINativeInterface& interface) {
     org = interface;
+    auto tmpl = GetNativeInterfaceTemplate();
+    for(int i = 0; i < sizeof(tmpl) / sizeof(void*); i++) {
+        if(((void**)&tmpl)[i]) {
+            ((void**)&interface)[i] = ((void**)&tmpl)[i];
+        }
+    }
 }
 
