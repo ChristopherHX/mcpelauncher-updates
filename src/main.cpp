@@ -5,7 +5,7 @@
 #include <vector>
 #include "../libjnivm/include/jni.h"
 
-static const char * jnivm::SkipJNIType(const char *cur, const char *end) {
+static const char * SkipJNIType(const char *cur, const char *end) {
     switch (*cur) {
     case 'V':
             // Void has size 0 ignore it
@@ -74,7 +74,7 @@ static std::vector<jvalue> JValuesfromValist(va_list list, const char* signature
 				values.back().d = va_arg(list, jdouble);
 				break;
 		case '[':
-				signature = jnivm::SkipJNIType(signature + 1, end) - 1;
+				signature = SkipJNIType(signature + 1, end) - 1;
 				values.back().l = va_arg(list, jobject);
 				break;
 		case 'L':
@@ -123,7 +123,7 @@ template<> struct JNINativeInterfaceCompose<> {
 	template<class Y> using index = std::integral_constant<size_t, 0>;	
 };
 
-template<class Y> using NullTemplate = std::integral_constant<void*, 0>;	
+template<class Y> using NullTemplate = std::integral_constant<void*, nullptr>;	
 
 template<class ...jnitypes> struct InterfaceFactory {
 	using SeqM2 = std::make_index_sequence<sizeof...(jnitypes) - 2>;
