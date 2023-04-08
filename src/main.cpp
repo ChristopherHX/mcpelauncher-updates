@@ -97,9 +97,9 @@ template <class T, class...Y> struct MDispatchBase {
 };
 
 template <class T> struct MDispatchBase2 {
-    static T CallMethod(JNIEnv * env, jobject obj, jmethodID id, jvalue * param);
-    static T CallMethod(JNIEnv * env, jobject obj, jclass cl, jmethodID id, jvalue * param);
-    static T CallMethod(JNIEnv * env, jclass cl, jmethodID id, jvalue * param);
+    static T CallMethod(JNIEnv * env, jobject obj, jmethodID id, jvalue * param) __attribute__((weak));
+    static T CallMethod(JNIEnv * env, jobject obj, jclass cl, jmethodID id, jvalue * param) __attribute__((weak));
+    static T CallMethod(JNIEnv * env, jclass cl, jmethodID id, jvalue * param) __attribute__((weak));
 };
 
 template <class T, class...Y> struct MDispatch : MDispatchBase<T, Y...>, MDispatchBase2<T> {
@@ -125,6 +125,25 @@ template<> struct JNINativeInterfaceCompose<> {
 
 template<size_t Y> struct NullTemplate {
     static constexpr void* value = NULL;
+};
+
+template<class T, class... Y> T jnivm::MDispatchBase<T, Y...>::CallMethod(JNIEnv *env, Y ...p, jmethodID id, va_list param) {
+    return MDispatch<T, Y...>::CallMethod(env, p..., id, id ? JValuesfromValist(param, ((Method *)id)->signature.data()).data() : nullptr);
+};
+
+template<class T, class... Y> T MDispatch<T, Y...>::CallMethod(JNIEnv *env, Y ...p, jmethodID id, ...) {
+    va_list l;
+    va_start(l, id);
+    T ret = MDispatch<T, Y...>::CallMethod(env, p..., id, l);
+    va_end(l);
+    return ret;
+};
+
+template<class... Y> void MDispatch<void, Y...>::CallMethod(JNIEnv *env, Y ...p, jmethodID id, ...) {
+    va_list l;
+    va_start(l, id);
+    MDispatch<void, Y...>::CallMethod(env, p..., id, l);
+    va_end(l);
 };
 
 template<class ...jnitypes> struct InterfaceFactory {
