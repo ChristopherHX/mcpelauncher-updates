@@ -2,6 +2,7 @@
 #include <string>
 #include <stdexcept>
 #include <algorithm>
+#include <vector>
 #include "../libjnivm/include/jni.h"
 
 static const char * jnivm::SkipJNIType(const char *cur, const char *end) {
@@ -124,7 +125,7 @@ template<> struct JNINativeInterfaceCompose<> {
 
 template<class Y> using NullTemplate = std::integral_constant<void*, 0>;	
 
-template<bool ReturnNull, class ...jnitypes> struct InterfaceFactory {
+template<class ...jnitypes> struct InterfaceFactory {
 	using SeqM2 = std::make_index_sequence<sizeof...(jnitypes) - 2>;
 	using SeqM1 = std::make_index_sequence<sizeof...(jnitypes) - 1>;
 	using Seq = std::make_index_sequence<sizeof...(jnitypes) * 3>;
@@ -187,8 +188,8 @@ template<bool ReturnNull, class ...jnitypes> struct InterfaceFactory {
 	using Type = typename Impl<Seq>::template Impl2<SeqM2>::template Impl3<SeqM1>;
 };
 
-template<bool ReturnNull> JNINativeInterface jnivm::VM::GetNativeInterfaceTemplate() {
-	return InterfaceFactory<ReturnNull, jobject, jboolean, jbyte, jchar, jshort, jint, jlong, jfloat, jdouble, void>::Type::Get();
+JNINativeInterface GetNativeInterfaceTemplate() {
+	return InterfaceFactory<jobject, jboolean, jbyte, jchar, jshort, jint, jlong, jfloat, jdouble, void>::Type::Get();
 }
 
 void PatchJNINativeInterface(JNINativeInterface& interface) {
