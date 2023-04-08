@@ -5,4 +5,4 @@ project(log LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 
 add_library(jnivmsupport SHARED src/main.cpp)
-target_include_directories(jnivmsupport libjnivm/include)
+target_include_directories(jnivmsupport PUBLIC libjnivm/include)
