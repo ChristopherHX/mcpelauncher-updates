@@ -99,8 +99,8 @@ template <class T, class...Y> struct MDispatchBase {
 JNINativeInterface org;
 
 template<class S, size_t i, class T, class...Ts> struct TypeIndex {
-    const constexpr int Index = std::is_same_v<S, T> ? i : TypeIndex<S, i + 1, Ts...>::Index;
-}
+    static const constexpr int Index = std::is_same_v<S, T> ? i : TypeIndex<S, i + 1, Ts...>::Index;
+};
 
 template <class T> struct MDispatchBase2 {
     static T CallMethod(JNIEnv * env, jobject obj, jmethodID id, jvalue * param) {
