@@ -122,7 +122,7 @@ template<> struct JNINativeInterfaceCompose<> {
 	template<class Y> using index = std::integral_constant<size_t, 0>;	
 };
 
-template<class Y> using NullTemplate = std::integral_constant<void, 0>;	
+template<class Y> using NullTemplate = std::integral_constant<void*, 0>;	
 
 template<bool ReturnNull, class ...jnitypes> struct InterfaceFactory {
 	using SeqM2 = std::make_index_sequence<sizeof...(jnitypes) - 2>;
@@ -175,8 +175,8 @@ template<bool ReturnNull, class ...jnitypes> struct InterfaceFactory {
 						MDispatch<std::tuple_element_t<I, composeType>, jobject>::CallMethod ...,
 						MDispatch<std::tuple_element_t<I, composeType>, jobject, jclass>::CallMethod ...,
 						NULL,
-						NullTemplate<IM1>...,
-						NullTemplate<IM1>...,
+						NullTemplate<IM1>::value...,
+						NullTemplate<IM1>::value...,
 						NULL,
 						MDispatch<std::tuple_element_t<I, composeType>, jclass>::CallMethod ...,
 					};
