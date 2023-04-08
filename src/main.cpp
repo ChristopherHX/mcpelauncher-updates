@@ -127,7 +127,7 @@ template<size_t Y> struct NullTemplate {
     static constexpr void* value = NULL;
 };
 
-template<class T, class... Y> T jnivm::MDispatchBase<T, Y...>::CallMethod(JNIEnv *env, Y ...p, jmethodID id, va_list param) {
+template<class T, class... Y> T MDispatchBase<T, Y...>::CallMethod(JNIEnv *env, Y ...p, jmethodID id, va_list param) {
     return MDispatch<T, Y...>::CallMethod(env, p..., id, id ? JValuesfromValist(param, ((Method *)id)->signature.data()).data() : nullptr);
 };
 
