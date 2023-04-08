@@ -39,10 +39,10 @@ jobs:
     - name: Configure
       run: cmake -B ${{github.workspace}}/build -G Ninja -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_TOOLCHAIN_FILE=${{ steps.setup-ndk.outputs.ndk-path }}/build/cmake/android.toolchain.cmake -DANDROID_ABI=${{ matrix.abi }}
     - name: Build
-      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --target log
+      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --target jnivmsupport
     
     - uses: actions/upload-artifact@v3
       with:
         name: update-${{format('android-{0}', matrix.abi)}}
         path: |
-          build/liblog.so
+          build/libjnivmsupport.so
