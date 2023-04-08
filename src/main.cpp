@@ -123,7 +123,9 @@ template<> struct JNINativeInterfaceCompose<> {
 	template<class Y> using index = std::integral_constant<size_t, 0>;	
 };
 
-template<size_t Y> using NullTemplate = std::integral_constant<void*, nullptr>;	
+template<size_t Y> struct NullTemplate {
+    static constexpr void* value = NULL;
+};
 
 template<class ...jnitypes> struct InterfaceFactory {
 	using SeqM2 = std::make_index_sequence<sizeof...(jnitypes) - 2>;
