@@ -96,8 +96,6 @@ template <class T, class...Y> struct MDispatchBase {
     static T CallMethod(JNIEnv * env, Y...p, jmethodID id, va_list param);
 };
 
-JNINativeInterface org;
-
 template<class S, size_t i, class...Ts> struct TypeIndex {
     static const constexpr int Index = -1;
 };
@@ -107,14 +105,18 @@ template<class S, size_t i, class T, class...Ts> struct TypeIndex<S, i, T, Ts...
 };
 
 template <class T> struct MDispatchBase2 {
-    static T CallMethod(JNIEnv * env, jobject obj, jmethodID id, jvalue * param) {
-        return ((T(*)(JNIEnv * env, jobject obj, jmethodID id, jvalue * param))(((void**)&org)[offsetof(JNINativeInterface, CallObjectMethod) + 3 * TypeIndex<T, 0, jobject, jboolean, jbyte, jchar, jshort, jint, jlong, jfloat, jdouble, void>::Index]))(env, obj, id, param);
+    static T CallMethod(JNIEnv * env, jobject obj, jmethodID id, jvalue * param) __attribute__((weak));
+    static T CallMethod(JNIEnv * env, jobject obj, jclass cl, jmethodID id, jvalue * param) __attribute__((weak));
+    static T CallMethod(JNIEnv * env, jclass cl, jmethodID id, jvalue * param) __attribute__((weak));
+
+    static T CallMethodT(JNIEnv * env, jobject obj, jmethodID id, jvalue * param) {
+        return ((T(*)(JNIEnv * env, jobject obj, jmethodID id, jvalue * param))(((void**)env->functions)[offsetof(JNINativeInterface, CallObjectMethod) + 3 * TypeIndex<T, 0, jobject, jboolean, jbyte, jchar, jshort, jint, jlong, jfloat, jdouble, void>::Index]))(env, obj, id, param);
     }
-    static T CallMethod(JNIEnv * env, jobject obj, jclass cl, jmethodID id, jvalue * param) {
-        return ((T(*)(JNIEnv * env, jobject obj, jclass cl, jmethodID id, jvalue * param))(((void**)&org)[offsetof(JNINativeInterface, CallNonvirtualObjectMethod) + 3 * TypeIndex<T, 0, jobject, jboolean, jbyte, jchar, jshort, jint, jlong, jfloat, jdouble, void>::Index]))(env, obj, cl, id, param);
+    static T CallMethodT(JNIEnv * env, jobject obj, jclass cl, jmethodID id, jvalue * param) {
+        return ((T(*)(JNIEnv * env, jobject obj, jclass cl, jmethodID id, jvalue * param))(((void**)env->functions)[offsetof(JNINativeInterface, CallNonvirtualObjectMethod) + 3 * TypeIndex<T, 0, jobject, jboolean, jbyte, jchar, jshort, jint, jlong, jfloat, jdouble, void>::Index]))(env, obj, cl, id, param);
     }
-    static T CallMethod(JNIEnv * env, jclass cl, jmethodID id, jvalue * param) {
-        return ((T(*)(JNIEnv * env, jclass cl, jmethodID id, jvalue * param))(((void**)&org)[offsetof(JNINativeInterface, CallStaticObjectMethod) + 3 * TypeIndex<T, 0, jobject, jboolean, jbyte, jchar, jshort, jint, jlong, jfloat, jdouble, void>::Index]))(env, cl, id, param);
+    static T CallMethodT(JNIEnv * env, jclass cl, jmethodID id, jvalue * param) {
+        return ((T(*)(JNIEnv * env, jclass cl, jmethodID id, jvalue * param))(((void**)env->functions)[offsetof(JNINativeInterface, CallStaticObjectMethod) + 3 * TypeIndex<T, 0, jobject, jboolean, jbyte, jchar, jshort, jint, jlong, jfloat, jdouble, void>::Index]))(env, cl, id, param);
     }
 };
 
@@ -144,7 +146,7 @@ template<size_t Y> struct NullTemplate {
 };
 
 template<class T, class... Y> T MDispatchBase<T, Y...>::CallMethod(JNIEnv *env, Y ...p, jmethodID id, va_list param) {
-    return MDispatch<T, Y...>::CallMethod(env, p..., id, id ? JValuesfromValist(param, GetJMethodIDSignature(id)).data() : nullptr);
+    return MDispatch<T, Y...>::CallMethodT(env, p..., id, id ? JValuesfromValist(param, GetJMethodIDSignature(id)).data() : nullptr);
 };
 
 template<class T, class... Y> T MDispatch<T, Y...>::CallMethod(JNIEnv *env, Y ...p, jmethodID id, ...) {
@@ -230,7 +232,6 @@ JNINativeInterface GetNativeInterfaceTemplate() {
 }
 
 void PatchJNINativeInterface(JNINativeInterface& interface) {
-    org = interface;
     auto tmpl = GetNativeInterfaceTemplate();
     for(int i = 0; i < sizeof(tmpl) / sizeof(void*); i++) {
         if(((void**)&tmpl)[i]) {
