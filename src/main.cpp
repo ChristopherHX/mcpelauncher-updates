@@ -239,7 +239,7 @@ JNINativeInterface GetNativeInterfaceTemplate() {
 	return InterfaceFactory<jobject, jboolean, jbyte, jchar, jshort, jint, jlong, jfloat, jdouble, void>::Type::Get();
 }
 
-void PatchJNINativeInterface(JNINativeInterface& interface) {
+extern "C" void PatchJNINativeInterface(JNINativeInterface& interface) {
     auto tmpl = GetNativeInterfaceTemplate();
     for(int i = 0; i < sizeof(tmpl) / sizeof(void*); i++) {
         if(((void**)&tmpl)[i]) {
