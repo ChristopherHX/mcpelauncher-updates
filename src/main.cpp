@@ -91,6 +91,7 @@ static std::vector<jvalue> JValuesfromValist(va_list list, const char* signature
 }
 
 extern "C" const char* (*GetJMethodIDSignature)(jmethodID id);
+const char* (*GetJMethodIDSignature)(jmethodID id) = nullptr;
 
 template <class T, class...Y> struct MDispatchBase {
     static T CallMethod(JNIEnv * env, Y...p, jmethodID id, va_list param);
