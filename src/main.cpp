@@ -121,10 +121,10 @@ template <class T> struct MDispatchBase2 {
         return ((T(*)(JNIEnv * env, jobject obj, jmethodID id, jvalue * param))(((void**)env->functions)[offsetof(JNINativeInterface, CallObjectMethodA) / sizeof(void*) + 3 * TypeIndex<T, 0, jobject, jboolean, jbyte, jchar, jshort, jint, jlong, jfloat, jdouble, void>::Index]))(env, obj, id, param);
     }
     static T CallMethodT(JNIEnv * env, jobject obj, jclass cl, jmethodID id, jvalue * param) {
-        return ((T(*)(JNIEnv * env, jobject obj, jclass cl, jmethodID id, jvalue * param))(((void**)env->functions)[offsetof(JNINativeInterface, CallNonvirtualObjectMethodA)) / sizeof(void*) + 3 * TypeIndex<T, 0, jobject, jboolean, jbyte, jchar, jshort, jint, jlong, jfloat, jdouble, void>::Index]))(env, obj, cl, id, param);
+        return ((T(*)(JNIEnv * env, jobject obj, jclass cl, jmethodID id, jvalue * param))(((void**)env->functions)[offsetof(JNINativeInterface, CallNonvirtualObjectMethodA) / sizeof(void*) + 3 * TypeIndex<T, 0, jobject, jboolean, jbyte, jchar, jshort, jint, jlong, jfloat, jdouble, void>::Index]))(env, obj, cl, id, param);
     }
     static T CallMethodT(JNIEnv * env, jclass cl, jmethodID id, jvalue * param) {
-        return ((T(*)(JNIEnv * env, jclass cl, jmethodID id, jvalue * param))(((void**)env->functions)[offsetof(JNINativeInterface, CallStaticObjectMethodA)) / sizeof(void*) + 3 * TypeIndex<T, 0, jobject, jboolean, jbyte, jchar, jshort, jint, jlong, jfloat, jdouble, void>::Index]))(env, cl, id, param);
+        return ((T(*)(JNIEnv * env, jclass cl, jmethodID id, jvalue * param))(((void**)env->functions)[offsetof(JNINativeInterface, CallStaticObjectMethodA) / sizeof(void*) + 3 * TypeIndex<T, 0, jobject, jboolean, jbyte, jchar, jshort, jint, jlong, jfloat, jdouble, void>::Index]))(env, cl, id, param);
     }
 };
 
