@@ -90,7 +90,10 @@ static std::vector<jvalue> JValuesfromValist(va_list list, const char* signature
 	return values;
 }
 
-const char* _GetJMethodIDSignature(jmethodID id);
+const char* _GetJMethodIDSignature(jmethodID id) {
+    abort();
+    return "()V";
+}
 extern "C" const char* (*GetJMethodIDSignature)(jmethodID id);
 const char* (*GetJMethodIDSignature)(jmethodID id) = &_GetJMethodIDSignature;
 extern "C" void SetGetJMethodIDSignature(const char* (*getJMethodIDSignature)(jmethodID id)) {
