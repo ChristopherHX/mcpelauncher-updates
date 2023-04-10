@@ -90,7 +90,7 @@ static std::vector<jvalue> JValuesfromValist(va_list list, const char* signature
 	return values;
 }
 
-const char* (*GetJMethodIDSignature)(jmethodID id);
+extern "C" const char* (*GetJMethodIDSignature)(jmethodID id);
 
 template <class T, class...Y> struct MDispatchBase {
     static T CallMethod(JNIEnv * env, Y...p, jmethodID id, va_list param);
