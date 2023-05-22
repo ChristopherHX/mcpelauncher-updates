@@ -10,6 +10,7 @@
 #include <sstream>
 #include <sys/ioctl.h>
 #include <sys/socket.h>
+#include <memory>
 
 static const char* libandroidSymbols[] = {
 	
@@ -360,13 +361,17 @@ int __ioctl(int fd, unsigned long cmd, void *arg) {
     }
 }
 
+std::unique_ptr<void> libmcpelauncher_mod;
+std::unique_ptr<void> libandroid;
+
 extern "C" void __attribute__ ((visibility ("default"))) mod_preinit() {
-    auto h = dlopen("libmcpelauncher_mod.so", 0);
-    if(!h) {
+    libmcpelauncher_mod = std::make_unique(dlopen("libmcpelauncher_mod.so", 0), [](void* p) {
+        dlclose(p);
+    });
+    if(!libmcpelauncher_mod.get()) {
         return;
     }
-    mcpelauncher_preinithook = (decltype(mcpelauncher_preinithook)) dlsym(h, "mcpelauncher_preinithook");
-    dlclose(h);
+    mcpelauncher_preinithook = (decltype(mcpelauncher_preinithook)) dlsym(libmcpelauncher_mod.get(), "mcpelauncher_preinithook");
     mcpelauncher_preinithook("__cmsg_nxthdr", (void*)&___cmsg_nxthdr, nullptr);
     mcpelauncher_preinithook("socket", (void*)&__socket, nullptr);
     mcpelauncher_preinithook("sendmsg", (void*)&__sendmsg, nullptr);
@@ -374,9 +379,11 @@ extern "C" void __attribute__ ((visibility ("default"))) mod_preinit() {
     mcpelauncher_preinithook("ioctl", (void*)&__ioctl, nullptr);
 	
 	
-    auto libandroid = dlopen("libandroid.so", 0);
+    libandroid = std::make_unique(dlopen("libandroid.so", 0), [](void* p) {
+        dlclose(p);
+    });
     for(size_t i = 0; i < sizeof(libandroidSymbols) / sizeof(*libandroidSymbols); i++) {
-        if(!dlsym(libandroid, libandroidSymbols[i])) {
+        if(!dlsym(libandroid.get(), libandroidSymbols[i])) {
             mcpelauncher_preinithook(libandroidSymbols[i], (void*)+[]() {
                 printf("libandroidSymbols stub called, provided by a mod");
             }, nullptr);
