@@ -11,7 +11,7 @@
 #include <sys/ioctl.h>
 #include <sys/socket.h>
 
-static const char*[] libandroidSymbols = {
+static const char* libandroidSymbols[] = {
 	
 "ANativeWindow_setBuffersTimestamp",
 "ASensor_getFifoMaxEventCount",
@@ -375,7 +375,7 @@ extern "C" void __attribute__ ((visibility ("default"))) mod_preinit() {
 	
 	
     auto libandroid = dlopen("libandroid.so", 0);
-    for(size_t i = 0; i < sizeof(libandroidSymbols) / sizeof(*libandroidSymbols)) {
+    for(size_t i = 0; i < sizeof(libandroidSymbols) / sizeof(*libandroidSymbols); i++) {
         if(!dlsym(libandroid, libandroidSymbols[i])) {
             mcpelauncher_preinithook(libandroidSymbols[i], (void*)+[]() {
                 printf("libandroidSymbols stub called, provided by a mod");
