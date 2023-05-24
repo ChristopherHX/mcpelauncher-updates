@@ -393,5 +393,5 @@ extern "C" void __attribute__ ((visibility ("default"))) mod_preinit() {
             return iter->second;
         }
         return eglGetProcAddress(procname);
-    });
+    }, nullptr);
 }
