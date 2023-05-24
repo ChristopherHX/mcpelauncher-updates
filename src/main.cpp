@@ -390,7 +390,7 @@ extern "C" void __attribute__ ((visibility ("default"))) mod_preinit() {
     mcpelauncher_preinithook("eglGetProcAddress", (void*)+[](char const * procname) -> void* {
         auto iter = modoverrides.find(procname);
         if(iter != modoverrides.end()) {
-            return *iter;
+            return iter->second;
         }
         return eglGetProcAddress(procname);
     });
