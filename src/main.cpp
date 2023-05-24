@@ -10,6 +10,7 @@
 #include <sstream>
 #include <sys/ioctl.h>
 #include <sys/socket.h>
+#include <string_view>
 
 static const char* libandroidSymbols[] = {
 	
@@ -382,5 +383,14 @@ extern "C" void __attribute__ ((visibility ("default"))) mod_preinit() {
             }, nullptr);
         }
     }
-
+    static std::map<std::string_view, void(*)()> modoverrides = { { "glVertexAttribDivisorOES", nullptr}, { "glDrawArraysInstancedOES", nullptr}, { "glDrawElementsInstancedOES", nullptr} } };
+    auto libEGL = dlopen("libEGL.so", 0);    
+    static void (* eglGetProcAddress(char const * procname))(void) = (decltype(eglGetProcAddress))dlsym(libEGL, "eglGetProcAddress");
+    mcpelauncher_preinithook("eglGetProcAddress", (void*)+[](char const * procname) -> void(*)() {
+        auto iter = modoverrides.find(procname);
+        if(iter != modoverrides.end()) {
+            return *iter;
+        }
+        return eglGetProcAddress(procname);
+    });
 }
