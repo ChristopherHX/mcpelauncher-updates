@@ -365,10 +365,10 @@ int __ioctl(int fd, unsigned long cmd, void *arg) {
     }
 }
 
-int __getaddrinfo(const char *restrict node,
-                       const char *restrict service,
-                       const struct addrinfo *restrict hints,
-                       struct addrinfo **restrict res) {
+int __getaddrinfo(const char * node,
+                       const char * service,
+                       const struct addrinfo * hints,
+                       struct addrinfo ** res) {
         std::vector<struct addrinfo> cshimhints;
         for(struct addrinfo* chint = hints; chint != nullptr; chint = chint->ai_next) {
            cshimhints.emplace_back(*chint);
