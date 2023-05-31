@@ -12,6 +12,9 @@
 #include <sys/socket.h>
 #include <string_view>
 #include <map>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
 
 static const char* libandroidSymbols[] = {
 	
@@ -362,6 +365,28 @@ int __ioctl(int fd, unsigned long cmd, void *arg) {
     }
 }
 
+int __getaddrinfo(const char *restrict node,
+                       const char *restrict service,
+                       const struct addrinfo *restrict hints,
+                       struct addrinfo **restrict res) {
+        std::vector<struct addrinfo> cshimhints;
+        for(struct addrinfo* chint = hints; chint != nullptr; chint = chint->ai_next) {
+           cshimhints.emplace_back(*chint);
+           if(chint->ai_socktype == 0 /*!= SOCK_STREAM && chint->ai_socktype != SOCK_DGRAM && chint->ai_socktype != SOCK_RAW*/) {
+              cshimhints.back().ai_socktype = SOCK_STREAM;
+              cshimhints.emplace_back(*chint);
+              cshimhints.back().ai_socktype = SOCK_DGRAM;
+              cshimhints.emplace_back(*chint);
+              cshimhints.back().ai_socktype = SOCK_RAW;
+           }
+        }
+        for(size_t i = 0; i < cshimhints.size() - 1; i++) {
+           cshimhints[i].ai_next = cshimhints.data() + i + 1;
+        }
+        cshimhints.back().ai_next = nullptr;
+	return getaddrinfo(node, service, cshimhints.data(), res);
+}
+
 extern "C" void __attribute__ ((visibility ("default"))) mod_preinit() {
     auto h = dlopen("libmcpelauncher_mod.so", 0);
     if(!h) {
@@ -374,7 +399,7 @@ extern "C" void __attribute__ ((visibility ("default"))) mod_preinit() {
     mcpelauncher_preinithook("sendmsg", (void*)&__sendmsg, nullptr);
     mcpelauncher_preinithook("recvmsg", (void*)&__recvmsg, nullptr);
     mcpelauncher_preinithook("ioctl", (void*)&__ioctl, nullptr);
-	
+    mcpelauncher_preinithook("getaddrinfo", (void*)&__getaddrinfo, nullptr);
 	
     auto libandroid = dlopen("libandroid.so", 0);
     for(size_t i = 0; i < sizeof(libandroidSymbols) / sizeof(*libandroidSymbols); i++) {
