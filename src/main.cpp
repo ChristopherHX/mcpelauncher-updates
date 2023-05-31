@@ -383,13 +383,17 @@ int __getaddrinfo(const char * node,
             cshimhints.back().ai_socktype = SOCK_RAW;
         }
     }
-    std::cout << "patch offsets\n";
-    for(size_t i = 0; i < cshimhints.size() - 1; i++) {
-        cshimhints[i].ai_next = cshimhints.data() + i + 1;
+    const struct addrinfo* myhints = hints;
+    if(cshimhints.size()) {
+        std::cout << "patch offsets\n";
+        for(size_t i = 0; i < cshimhints.size() - 1; i++) {
+            cshimhints[i].ai_next = cshimhints.data() + i + 1;
+        }
+        cshimhints.back().ai_next = nullptr;
+        myhints = cshimhints.data();
     }
-    cshimhints.back().ai_next = nullptr;
     std::cout << "call getaddrinfo\n";
-    return getaddrinfo(node, service, cshimhints.data(), res);
+    return getaddrinfo(node, service, myhints, res);
 }
 
 extern "C" void __attribute__ ((visibility ("default"))) mod_preinit() {
