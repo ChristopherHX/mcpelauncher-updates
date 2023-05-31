@@ -370,7 +370,7 @@ int __getaddrinfo(const char * node,
                        const struct addrinfo * hints,
                        struct addrinfo ** res) {
         std::vector<struct addrinfo> cshimhints;
-        for(struct addrinfo* chint = hints; chint != nullptr; chint = chint->ai_next) {
+        for(const struct addrinfo* chint = hints; chint != nullptr; chint = chint->ai_next) {
            cshimhints.emplace_back(*chint);
            if(chint->ai_socktype == 0 /*!= SOCK_STREAM && chint->ai_socktype != SOCK_DGRAM && chint->ai_socktype != SOCK_RAW*/) {
               cshimhints.back().ai_socktype = SOCK_STREAM;
