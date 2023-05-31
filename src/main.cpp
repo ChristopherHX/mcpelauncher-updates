@@ -366,25 +366,29 @@ int __ioctl(int fd, unsigned long cmd, void *arg) {
 }
 
 int __getaddrinfo(const char * node,
-                       const char * service,
-                       const struct addrinfo * hints,
-                       struct addrinfo ** res) {
-        std::vector<struct addrinfo> cshimhints;
-        for(const struct addrinfo* chint = hints; chint != nullptr; chint = chint->ai_next) {
-           cshimhints.emplace_back(*chint);
-           if(chint->ai_socktype == 0 /*!= SOCK_STREAM && chint->ai_socktype != SOCK_DGRAM && chint->ai_socktype != SOCK_RAW*/) {
-              cshimhints.back().ai_socktype = SOCK_STREAM;
-              cshimhints.emplace_back(*chint);
-              cshimhints.back().ai_socktype = SOCK_DGRAM;
-              cshimhints.emplace_back(*chint);
-              cshimhints.back().ai_socktype = SOCK_RAW;
-           }
+                    const char * service,
+                    const struct addrinfo * hints,
+                    struct addrinfo ** res) {
+    std::vector<struct addrinfo> cshimhints;
+    std::cout << "getaddrinfo...\n";
+    for(const struct addrinfo* chint = hints; chint != nullptr; chint = chint->ai_next) {
+        std::cout << "chint->ai_socktype: " << chint->ai_socktype << "\n";
+        cshimhints.emplace_back(*chint);
+        if(chint->ai_socktype == 0 /*!= SOCK_STREAM && chint->ai_socktype != SOCK_DGRAM && chint->ai_socktype != SOCK_RAW*/) {
+            cshimhints.back().ai_socktype = SOCK_STREAM;
+            cshimhints.emplace_back(*chint);
+            cshimhints.back().ai_socktype = SOCK_DGRAM;
+            cshimhints.emplace_back(*chint);
+            cshimhints.back().ai_socktype = SOCK_RAW;
         }
-        for(size_t i = 0; i < cshimhints.size() - 1; i++) {
-           cshimhints[i].ai_next = cshimhints.data() + i + 1;
-        }
-        cshimhints.back().ai_next = nullptr;
-	return getaddrinfo(node, service, cshimhints.data(), res);
+    }
+    std::cout << "patch offsets\n";
+    for(size_t i = 0; i < cshimhints.size() - 1; i++) {
+        cshimhints[i].ai_next = cshimhints.data() + i + 1;
+    }
+    cshimhints.back().ai_next = nullptr;
+    std::cout << "call getaddrinfo\n";
+    return getaddrinfo(node, service, cshimhints.data(), res);
 }
 
 extern "C" void __attribute__ ((visibility ("default"))) mod_preinit() {
@@ -393,30 +397,30 @@ extern "C" void __attribute__ ((visibility ("default"))) mod_preinit() {
         return;
     }
     mcpelauncher_preinithook = (decltype(mcpelauncher_preinithook)) dlsym(h, "mcpelauncher_preinithook");
-    dlclose(h);
-    mcpelauncher_preinithook("__cmsg_nxthdr", (void*)&___cmsg_nxthdr, nullptr);
-    mcpelauncher_preinithook("socket", (void*)&__socket, nullptr);
-    mcpelauncher_preinithook("sendmsg", (void*)&__sendmsg, nullptr);
-    mcpelauncher_preinithook("recvmsg", (void*)&__recvmsg, nullptr);
-    mcpelauncher_preinithook("ioctl", (void*)&__ioctl, nullptr);
+    //dlclose(h);
+    //mcpelauncher_preinithook("__cmsg_nxthdr", (void*)&___cmsg_nxthdr, nullptr);
+    //mcpelauncher_preinithook("socket", (void*)&__socket, nullptr);
+    //mcpelauncher_preinithook("sendmsg", (void*)&__sendmsg, nullptr);
+    //mcpelauncher_preinithook("recvmsg", (void*)&__recvmsg, nullptr);
+    //mcpelauncher_preinithook("ioctl", (void*)&__ioctl, nullptr);
     mcpelauncher_preinithook("getaddrinfo", (void*)&__getaddrinfo, nullptr);
 	
-    auto libandroid = dlopen("libandroid.so", 0);
-    for(size_t i = 0; i < sizeof(libandroidSymbols) / sizeof(*libandroidSymbols); i++) {
-        if(!dlsym(libandroid, libandroidSymbols[i])) {
-            mcpelauncher_preinithook(libandroidSymbols[i], (void*)+[]() {
-                printf("libandroidSymbols stub called, provided by a mod");
-            }, nullptr);
-        }
-    }
-    static std::map<std::string_view, void*> modoverrides = { { "glVertexAttribDivisorOES", nullptr}, { "glDrawArraysInstancedOES", nullptr}, { "glDrawElementsInstancedOES", nullptr} };
-    auto libEGL = dlopen("libEGL.so", 0);    
-    static void* (* eglGetProcAddress)(char const * procname) = (decltype(eglGetProcAddress))dlsym(libEGL, "eglGetProcAddress");
-    mcpelauncher_preinithook("eglGetProcAddress", (void*)+[](char const * procname) -> void* {
-        auto iter = modoverrides.find(procname);
-        if(iter != modoverrides.end()) {
-            return iter->second;
-        }
-        return eglGetProcAddress(procname);
-    }, nullptr);
+    //auto libandroid = dlopen("libandroid.so", 0);
+    // for(size_t i = 0; i < sizeof(libandroidSymbols) / sizeof(*libandroidSymbols); i++) {
+    //     if(!dlsym(libandroid, libandroidSymbols[i])) {
+    //         mcpelauncher_preinithook(libandroidSymbols[i], (void*)+[]() {
+    //             printf("libandroidSymbols stub called, provided by a mod");
+    //         }, nullptr);
+    //     }
+    // }
+    // static std::map<std::string_view, void*> modoverrides = { { "glVertexAttribDivisorOES", nullptr}, { "glDrawArraysInstancedOES", nullptr}, { "glDrawElementsInstancedOES", nullptr} };
+    // auto libEGL = dlopen("libEGL.so", 0);    
+    // static void* (* eglGetProcAddress)(char const * procname) = (decltype(eglGetProcAddress))dlsym(libEGL, "eglGetProcAddress");
+    // mcpelauncher_preinithook("eglGetProcAddress", (void*)+[](char const * procname) -> void* {
+    //     auto iter = modoverrides.find(procname);
+    //     if(iter != modoverrides.end()) {
+    //         return iter->second;
+    //     }
+    //     return eglGetProcAddress(procname);
+    // }, nullptr);
 }
