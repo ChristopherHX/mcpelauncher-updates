@@ -9,6 +9,8 @@ extern "C" void __attribute__ ((visibility ("default"))) mod_preinit() {
     void (*mcpelauncher_preinithook)(const char*sym, void*val, void **orig);
     mcpelauncher_preinithook = (decltype(mcpelauncher_preinithook)) dlsym(h, "mcpelauncher_preinithook");
     mcpelauncher_preinithook("malloc", (void*)+[](size_t s) {
-	return malloc(s + 64);
+	return malloc(s + 256);
+    }, nullptr);
+    mcpelauncher_preinithook("free", (void*)+[](void* p) {
     }, nullptr);
 }
